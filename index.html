@@ -1,76 +1,92 @@
 <!DOCTYPE html>
-<html lang="it" class="dark">
+<html lang="en" id="html-tag">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Password Generator</title>
+        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z'/%3E%3C/svg%3E">
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23818cf8'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z'/%3E%3C/svg%3E">
+        <script>
+            tailwind.config = { darkMode: 'class' }
+        </script>
         <style>
-            body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f1f5f9; }
-            .material-card { background: #1e293b; border-radius: 28px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #334155; }
-            input[type="range"] { accent-color: #818cf8; background: #334155; }
-            .custom-checkbox:checked { background-color: #818cf8; }
-            *:focus { outline: 2px solid #818cf8; outline-offset: 4px; }
+            body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
+            .material-card { transition: all 0.3s ease; }
+            .spin-anim { animation: rotate 0.5s ease-in-out; }
+            @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         </style>
     </head>
-    <body class="min-h-screen flex items-center justify-center p-4">
-        <div class="material-card w-full max-w-md p-10 transform transition-all duration-300">
+    <body class="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+        <div class="fixed top-6 right-6">
+            <button onclick="toggleTheme()" class="p-3 bg-white dark:bg-slate-800 shadow-lg rounded-2xl border border-slate-200 dark:border-slate-700 hover:scale-110 transition-transform">
+                <span id="theme-icon" class="material-icons-round text-amber-500 dark:text-indigo-400">dark_mode</span>
+            </button>
+        </div>
+        <div class="material-card w-full max-w-md p-10 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-xl dark:shadow-2xl">
             <header class="mb-10 text-center">
-                <div class="inline-flex items-center justify-center w-12 h-12 bg-indigo-500/10 rounded-2xl mb-4">
-                    <span class="material-icons-round text-indigo-400">shield</span>
+                <div class="inline-flex items-center justify-center w-14 h-14 bg-indigo-500/10 rounded-2xl mb-4 text-indigo-600 dark:text-indigo-400">
+                    <span class="material-icons-round text-3xl">verified_user</span>
                 </div>
                 <h1 class="text-2xl font-black tracking-tight">Password Generator</h1>
             </header>
             <div class="relative mb-10 group">
                 <input type="text" id="password-display" readonly 
-                    class="w-full bg-slate-900/50 border border-slate-700 rounded-2xl text-2xl py-6 px-6 font-mono text-indigo-300 transition-all cursor-default overflow-hidden text-ellipsis"
-                    placeholder="---">
-                <div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
-                    <button onclick="copyToClipboard()" class="p-3 hover:bg-indigo-500/10 rounded-xl transition-colors group">
-                        <span id="copy-icon" class="material-icons-round text-slate-400 group-hover:text-indigo-400">content_copy</span>
+                    class="w-full bg-slate-100 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-2xl text-2xl py-6 pl-6 pr-24 font-mono text-indigo-600 dark:text-indigo-300 transition-all focus:ring-2 ring-indigo-500/20 outline-none" placeholder="---">
+                <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center bg-white dark:bg-slate-800 rounded-xl p-1 border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <button onclick="triggerRefresh()" id="refresh-btn" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors group">
+                        <span class="material-icons-round text-slate-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 text-xl">refresh</span>
+                    </button>
+                    <button onclick="copyToClipboard()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors group">
+                        <span id="copy-icon" class="material-icons-round text-slate-400 group-hover:text-emerald-500 text-xl">content_copy</span>
                     </button>
                 </div>
             </div>
-            <div class="space-y-10">
-                <div class="relative">
-                    <div class="flex justify-between items-center mb-6">
-                        <span class="text-sm font-semibold text-slate-300">Length</span>
-                        <span id="length-val" class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full font-mono font-bold text-lg">16</span>
+            <div class="space-y-8">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Length</span>
+                        <span id="length-val" class="text-indigo-600 dark:text-indigo-400 font-mono font-bold text-lg">16</span>
                     </div>
-                    <input type="range" id="length" min="8" max="64" value="16" 
-                        class="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-700">
+                    <input type="range" id="length" min="8" max="64" value="16" class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-200 dark:bg-slate-800 accent-indigo-600">
                 </div>
                 <div class="grid grid-cols-1 gap-3">
-                    <label class="flex items-center justify-between p-4 bg-slate-800/50 hover:bg-slate-800 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-slate-600">
-                        <div class="flex flex-col">
-                            <span class="text-sm font-bold">Uppercase</span>
-                            <span class="text-[10px] text-slate-500">A-Z</span>
-                        </div>
-                        <input type="checkbox" id="uppercase" checked class="w-6 h-6 rounded border-slate-600 bg-slate-700 text-indigo-500 focus:ring-indigo-500/50 transition-all">
+                    <label class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-indigo-100 dark:hover:border-slate-700">
+                        <span class="text-sm font-semibold">Uppercase</span>
+                        <input type="checkbox" id="uppercase" checked class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500">
                     </label>
-                    <label class="flex items-center justify-between p-4 bg-slate-800/50 hover:bg-slate-800 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-slate-600">
-                        <div class="flex flex-col">
-                            <span class="text-sm font-bold">Numbers</span>
-                            <span class="text-[10px] text-slate-500">0-9</span>
-                        </div>
-                        <input type="checkbox" id="numbers" checked class="w-6 h-6 rounded border-slate-600 bg-slate-700 text-indigo-500">
+                    <label class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-indigo-100 dark:hover:border-slate-700">
+                        <span class="text-sm font-semibold">Numbers</span>
+                        <input type="checkbox" id="numbers" checked class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500">
                     </label>
-                    <label class="flex items-center justify-between p-4 bg-slate-800/50 hover:bg-slate-800 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-slate-600">
-                        <div class="flex flex-col">
-                            <span class="text-sm font-bold">Symbols</span>
-                            <span class="text-[10px] text-slate-500">!@#$%^&*</span>
-                        </div>
-                        <input type="checkbox" id="symbols" checked class="w-6 h-6 rounded border-slate-600 bg-slate-700 text-indigo-500">
+                    <label class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-indigo-100 dark:hover:border-slate-700">
+                        <span class="text-sm font-semibold">Symbols</span>
+                        <input type="checkbox" id="symbols" checked class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500">
                     </label>
                 </div>
             </div>
-            <footer class="mt-8 text-center">
-                <p class="text-[10px] text-slate-500 italic">Generated locally</p>
-            </footer>
         </div>
         <script>
+            const html = document.getElementById('html-tag');
+            const themeIcon = document.getElementById('theme-icon');
+
+            function toggleTheme() {
+                if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    themeIcon.textContent = 'dark_mode';
+                    localStorage.theme = 'light';
+                } else {
+                    html.classList.add('dark');
+                    themeIcon.textContent = 'light_mode';
+                    localStorage.theme = 'dark';
+                }
+            }
+
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                html.classList.add('dark');
+                themeIcon.textContent = 'light_mode';
+            }
+
             const configIds = ['length', 'uppercase', 'numbers', 'symbols'];
             const display = document.getElementById('password-display');
             const lengthVal = document.getElementById('length-val');
@@ -82,21 +98,26 @@
                 });
             });
 
+            function triggerRefresh() {
+                const btn = document.getElementById('refresh-btn').querySelector('span');
+                btn.classList.add('spin-anim');
+                generate();
+                setTimeout(() => btn.classList.remove('spin-anim'), 500);
+            }
+
             function generate() {
                 const length = +document.getElementById('length').value;
                 const settings = {
                     u: [document.getElementById('uppercase').checked, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'],
-                    l: [true, 'abcdefghijklmnopqrstuvwxyz'], // Sempre incluse per base minima
+                    l: [true, 'abcdefghijklmnopqrstuvwxyz'],
                     n: [document.getElementById('numbers').checked, '0123456789'],
                     s: [document.getElementById('symbols').checked, '!@#$%^&*()_+~`|}{[]:;?><,./-=']
                 };
 
                 let pool = '';
                 Object.values(settings).forEach(([active, chars]) => { if(active) pool += chars; });
-
                 const uints = new Uint32Array(length);
                 window.crypto.getRandomValues(uints);
-                
                 let pass = '';
                 for(let i=0; i<length; i++) pass += pool[uints[i] % pool.length];
                 display.value = pass;
@@ -106,15 +127,10 @@
                 if(!display.value) return;
                 await navigator.clipboard.writeText(display.value);
                 const icon = document.getElementById('copy-icon');
-                icon.textContent = 'check_circle';
-                icon.classList.add('text-emerald-400');
-                setTimeout(() => {
-                    icon.textContent = 'content_copy';
-                    icon.classList.remove('text-emerald-400');
-                }, 2000);
+                icon.textContent = 'check';
+                setTimeout(() => icon.textContent = 'content_copy', 1500);
             }
 
-            // Init
             generate();
         </script>
     </body>
