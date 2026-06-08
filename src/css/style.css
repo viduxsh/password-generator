@@ -1,0 +1,17 @@
+body { 
+    font-family: 'Inter', sans-serif; 
+    transition: background-color 0.3s ease; 
+}
+
+.material-card { 
+    transition: all 0.3s ease; 
+}
+
+.spin-anim { 
+    animation: rotate 0.5s ease-in-out; 
+}
+
+@keyframes rotate { 
+    from { transform: rotate(0deg); } 
+    to { transform: rotate(360deg); } 
+}
